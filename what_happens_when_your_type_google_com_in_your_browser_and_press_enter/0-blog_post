@@ -1,0 +1,135 @@
+# What Really Happens When You Type [https://www.google.com](https://www.google.com) and Press Enter
+
+## Introduction
+
+Whether you're debugging a slow page, designing infrastructure, or preparing for a technical interview, one of the most valuable questions you can answer is:
+
+**"What happens when you type a URL in your browser and press Enter?"**
+
+This simple action kicks off a complex sequence of network events involving DNS resolution, encrypted communication, routing, load balancing, and backend processing. In this post, I walk you through what really happens — step by step — when you visit `https://www.google.com`.
+
+---
+
+## 1. DNS Resolution
+
+The process begins when the browser needs to convert `www.google.com` into an IP address. It checks its **local cache** first. If the record isn't found, it sends a DNS query to a **recursive DNS resolver** (usually provided by your ISP or a public service like Google DNS).
+
+The resolver performs a **recursive lookup**:
+
+* It asks a **root name server** for `.com` TLD info.
+* Then it contacts a **TLD name server** for `google.com`.
+* Finally, it queries Google's **authoritative name server**.
+
+The response is an IP address, such as `142.250.64.100`, which the browser can now use to contact Google's servers.
+
+---
+
+## 2. Establishing a TCP/IP Connection
+
+With the IP resolved, your browser establishes a **TCP connection** to the server on port **443** (the default for HTTPS). This involves the **three-way handshake**:
+
+1. **SYN** — The client sends a synchronization request.
+2. **SYN-ACK** — The server acknowledges and responds.
+3. **ACK** — The client confirms the handshake.
+
+The **IP protocol** ensures correct routing across networks, while TCP guarantees **reliable delivery**.
+
+---
+
+## 3. Firewall Inspection
+
+At each step, **firewalls** monitor the traffic:
+
+* On your device,
+* On your router or ISP,
+* And within Google's data centers.
+
+These firewalls apply filtering rules (by IP, port, or protocol) to block malicious or unauthorized traffic. Your request to port 443 is standard and allowed through.
+
+---
+
+## 4. SSL/TLS Handshake (HTTPS)
+
+Once TCP is established, the client and server negotiate a secure channel using **SSL/TLS**.
+
+1. The server sends its **SSL certificate** to prove its identity.
+2. The browser verifies the certificate (checking expiration, authority, etc.).
+3. A **session key** is securely exchanged using asymmetric encryption.
+4. From now on, all communication is **encrypted**.
+
+This ensures **confidentiality**, **integrity**, and **authenticity** of the data exchanged.
+
+---
+
+## 5. Load Balancer
+
+Your request reaches Google’s **load balancer**:
+
+* It selects an optimal backend server based on location, health, and current load.
+* Load balancers often use **round-robin**, **least connections**, or more complex algorithms.
+* This enables **fault tolerance** and **scalability**.
+
+---
+
+## 6. Web Server
+
+The request is now handled by a **web server** (like Google Front End or Nginx):
+
+* It handles the HTTP protocol.
+* Serves static content (HTML, CSS, JS) directly if applicable.
+* Otherwise, forwards the request to an **application server**.
+
+---
+
+## 7. Application Server
+
+The **application server** processes dynamic content:
+
+* It might authenticate users, log activity, or interact with services.
+* It executes **business logic**, typically in a language like Go, Java, or Python.
+* Often, it needs to query a database to retrieve or store data.
+
+---
+
+## 8. Database Query
+
+The app server queries one of Google’s backend **databases**, like **Bigtable** or **Spanner**:
+
+* These databases are **highly distributed** and **fault-tolerant**.
+* They return structured data used to build the final response.
+
+---
+
+## 9. Response and Rendering
+
+1. The **application server** returns the result to the **web server**.
+2. The web server sends the **HTTPS response** back through the **load balancer** to your browser.
+3. The browser receives the response:
+
+   * Parses HTML.
+   * Loads CSS and JavaScript.
+   * Renders the page.
+
+Finally, the **Google homepage appears**, ready for your search.
+
+---
+
+## Summary
+
+Here's a simplified breakdown:
+
+1. DNS resolves the domain name.
+2. TCP/IP establishes a connection.
+3. Firewalls inspect and allow the request.
+4. SSL/TLS encrypts the communication.
+5. A load balancer routes the request.
+6. A web server handles the HTTP request.
+7. An application server processes the logic.
+8. A database provides dynamic data.
+9. The browser receives and renders the response.
+
+This process happens in **milliseconds**, thanks to distributed infrastructure, caching, and optimized protocols. Understanding this workflow is a key step toward mastering full-stack engineering.
+
+---
+
+*Thanks for reading!*
